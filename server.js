@@ -3,7 +3,8 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 const session = require("express-session");
 const store = new session.MemoryStore();
-var crypto = require('crypto');
+const bcrypt = require('bcrypt');
+
 
 const app = express();
 const PORT = process.env.PORT || 4001;
@@ -14,7 +15,7 @@ app.use(
       secret: "secret-key",
       resave: false,
       saveUninitialized: false,
-      cookie: { maxAge: 300000000, secure: false }
+      cookie: { maxAge: 300000000, secure: true }
     })
   );
 
@@ -36,20 +37,27 @@ passport.deserializeUser((id, done) => {
 
 
 passport.use(new LocalStrategy(function verify(username, password, done) {
-    db.get('SELECT * FROM users WHERE username = ?', [ username ], function(err, user) {
-      if (err) { return done(err); }
-
-      if (!user) { return done(null, false, { message: 'Incorrect username or password.' }); }
-  
-      crypto.pbkdf2(password, user.salt, 310000, 32, 'sha256', function(err, hashedPassword) {
-        if (err) { return done(err); }
-        if (!crypto.timingSafeEqual(user.hashed_password, hashedPassword)) {
-          return done(null, false, { message: 'Incorrect username or password.' });
+    db.get('SELECT * FROM users WHERE username = ?', [username], function (err, user) {
+        if (err) {
+            return done(err);
         }
-        return done(null, user);
-      });
+
+        if (!user) {
+            return done(null, false, { message: 'Incorrect username or password.' });
+        }
+
+        bcrypt.compare(password, user.hashed_password, function (err, result) {
+            if (err) {
+                return done(err);
+            }
+            if (!result) {
+                return done(null, false, { message: 'Incorrect username or password.' });
+            }
+            return done(null, user);
+        });
     });
-  }));
+}));
+
 
 
 app.get('/login',
