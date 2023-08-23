@@ -4,7 +4,7 @@ const session = require('express-session');
 const passport = require('./passport'); // Import the Passport configuration from passport.js
 const routes = require('./routes'); // Import the server routes from routes.js
 const bodyParser = require('body-parser');
-
+const cors = require('cors')
 
 const app = express();
 const PORT = process.env.PORT || 4001;
@@ -18,6 +18,7 @@ app.use(
     })
 );
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true }));
 app.use(express.json());

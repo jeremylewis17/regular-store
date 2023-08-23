@@ -23,12 +23,12 @@ router.post('/register', async (req, res) => {
         }
 
         // Check if the username is within the desired length range
-        if (username.length < 4 || username.length > 20) {
+        if (username.length < 4 || username.length > 40) {
             return res.status(400).send('Username must be between 4 and 20 characters.');
         }
 
         // Check if the password is within the desired length range
-        if (password.length < 8 || password.length > 30) {
+        if (password.length < 8 || password.length > 40) {
             return res.status(400).send('Password must be between 8 and 30 characters.');
         }
 
