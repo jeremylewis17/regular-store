@@ -37,4 +37,15 @@ passport.use(new LocalStrategy(async (username, password, done) => {
     }
 }));
 
-module.exports = passport;
+// Passport.js middleware for ensuring authentication
+function ensureAuthenticated(req, res, next) {
+    if (req.isAuthenticated()) {
+        // User is authenticated; proceed to the next middleware
+        return next();
+    }
+
+    // User is not authenticated; redirect to login
+    res.redirect('/login');
+}
+
+module.exports = {passport, ensureAuthenticated};

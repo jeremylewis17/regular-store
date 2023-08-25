@@ -1,6 +1,6 @@
 const express = require('express');
 const pool = require('./database');  // Import the PostgreSQL pool from database.js
-const passport = require('./passport'); // Import the Passport configuration from passport.js
+const {passport, ensureAuthenticated} = require('./passport'); // Import the Passport configuration from passport.js
 const bcrypt = require('bcrypt');
 
 const usersRouter = express.Router();
@@ -13,6 +13,11 @@ usersRouter.post('/login', passport.authenticate('local', { failureRedirect: '/l
     res.redirect('profile');
 });
 
+usersRouter.get('/logout', (req, res) => {
+    req.logout();
+    res.redirect('../');
+  });
+
 usersRouter.post('/register', async (req, res) => {
     const { username, password } = req.body;
 
@@ -21,17 +26,14 @@ usersRouter.post('/register', async (req, res) => {
         if (!username || !password) {
             return res.status(400).send('Username and password are required.');
         }
-
         // Check if the username is within the desired length range
         if (username.length < 4 || username.length > 40) {
             return res.status(400).send('Username must be between 4 and 20 characters.');
         }
-
         // Check if the password is within the desired length range
         if (password.length < 8 || password.length > 40) {
             return res.status(400).send('Password must be between 8 and 30 characters.');
         }
-
         // Check if the username already exists
         const existingUser = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
         if (existingUser.rows.length > 0) {
@@ -39,7 +41,6 @@ usersRouter.post('/register', async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-
         // Insert the user into the PostgreSQL database
         await pool.query('INSERT INTO users (username, hashed_password) VALUES ($1, $2)', [username, hashedPassword]);
 
@@ -67,18 +68,36 @@ usersRouter.get('/profile', ensureAuthenticated, async (req, res) => {
     }
 });
 
+usersRouter.put('/profile', ensureAuthenticated, async (req, res) => {
+    try {
+        // Retrieve the user's ID from the authenticated user's session
+        const userId = req.user.user_id;
 
+        // Retrieve the new profile data from the request body
+        const { newUsername, newPassword } = req.body;
 
-// Passport.js middleware for ensuring authentication
-function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
-        // User is authenticated; proceed to the next middleware
-        return next();
+        // Validate the new data
+        if (!newUsername && !newPassword) {
+            return res.status(400).send('No data provided for update.');
+        }
+
+        // Update the user's profile data in the database
+        if (newUsername) {
+            await pool.query('UPDATE users SET username = $1 WHERE user_id = $2', [newUsername, userId]);
+        }
+
+        if (newPassword) {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            await pool.query('UPDATE users SET hashed_password = $1 WHERE user_id = $2', [hashedPassword, userId]);
+        }
+
+        res.status(200).send('Profile updated successfully.');
+    } catch (err) {
+        console.error('Error updating user profile:', err);
+        res.status(500).send('An error occurred while updating the user profile.');
     }
+});
 
-    // User is not authenticated; redirect to login
-    res.redirect('/login');
-}
 
 
 module.exports = usersRouter;
