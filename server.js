@@ -1,7 +1,7 @@
 require('dotenv').config(); // Load environment variables from .env file
 const express = require('express');
 const session = require('express-session');
-const passport = require('./passport'); // Import the Passport configuration from passport.js
+const {passport} = require('./passport'); // Import the Passport configuration from passport.js
 const apiRouter = require('./routes'); // Import the server routes from routes.js
 const bodyParser = require('body-parser');
 const cors = require('cors')
