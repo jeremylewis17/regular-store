@@ -5,18 +5,21 @@ const bcrypt = require('bcrypt');
 
 const usersRouter = express.Router();
 
+// Render the login form page
 usersRouter.get('/login', (req, res, next) => {
-    res.render('login');
+    res.status(200).send('Please log in.'); // Modify this message as needed
 });
 
+// Handle login form submission
 usersRouter.post('/login', passport.authenticate('local', { failureRedirect: '/login' }), (req, res) => {
-    res.redirect('profile');
+    res.status(200).send('Login successful.'); // Modify this message as needed
 });
 
+// Logout and redirect
 usersRouter.get('/logout', (req, res) => {
     req.logout();
-    res.redirect('../');
-  });
+    res.status(200).send('Logout successful.'); // Modify this message as needed
+});
 
 usersRouter.post('/register', async (req, res) => {
     const { username, password } = req.body;
@@ -52,6 +55,7 @@ usersRouter.post('/register', async (req, res) => {
     }
 });
 
+
 usersRouter.get('/profile', ensureAuthenticated, async (req, res) => {
     try {
         // Retrieve user profile data from the database based on the authenticated user's ID
@@ -59,9 +63,8 @@ usersRouter.get('/profile', ensureAuthenticated, async (req, res) => {
 
         const userProfile = await pool.query('SELECT username FROM users WHERE user_id = $1', [userId]);
 
-        // Render the user's profile information
-        res.render('profile', { user: userProfile.rows[0] }); // Assuming there is a profile view/template
-
+        // Send the user's profile information as plain text
+        res.status(200).send(`User Profile: ${userProfile.rows[0].username}`);
     } catch (err) {
         console.error('Error fetching user profile:', err);
         res.status(500).send('An error occurred while fetching the user profile.');
