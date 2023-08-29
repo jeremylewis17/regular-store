@@ -54,46 +54,42 @@ usersRouter.post('/register', async (req, res) => {
     }
 });
 
-
-usersRouter.get('/profile', ensureAuthenticated, async (req, res) => {
+usersRouter.get('/:user_id', ensureAuthenticated, async (req, res) => {
     try {
-        // Retrieve user profile data from the database based on the authenticated user's ID
-        const userId = req.user.user_id; // Assuming information is stored in req.user
-
+        const userId = req.params.user_id;
+        console.log('User ID:', userId);
         const userProfile = await pool.query('SELECT username FROM users WHERE user_id = $1', [userId]);
+        console.log('User Profile:', userProfile.rows[0]);
 
-        // Send the user's profile information as plain text
+        if (userProfile.rows.length === 0) {
+            console.log('User not found in the database.');
+            return res.status(404).send('User not found.');
+        }
+
+        // Send the user's profile information as JSON
         res.status(200).json({ userProfile: userProfile.rows[0].username });
-
     } catch (err) {
         console.error('Error fetching user profile:', err);
         res.status(500).send('An error occurred while fetching the user profile.');
     }
 });
 
-usersRouter.put('/profile', ensureAuthenticated, async (req, res) => {
+usersRouter.put('/:user_id', ensureAuthenticated, async (req, res) => {
     try {
-        // Retrieve the user's ID from the authenticated user's session
-        const userId = req.user.user_id;
-
+        const userId = req.params.user_id;
         // Retrieve the new profile data from the request body
         const { newUsername, newPassword } = req.body;
 
-        // Validate the new data
         if (!newUsername && !newPassword) {
             return res.status(400).send('No data provided for update.');
         }
-
-        // Update the user's profile data in the database
         if (newUsername) {
             await pool.query('UPDATE users SET username = $1 WHERE user_id = $2', [newUsername, userId]);
         }
-
         if (newPassword) {
             const hashedPassword = await bcrypt.hash(newPassword, 10);
             await pool.query('UPDATE users SET hashed_password = $1 WHERE user_id = $2', [hashedPassword, userId]);
         }
-
         res.status(200).send('Profile updated successfully.');
     } catch (err) {
         console.error('Error updating user profile:', err);
@@ -101,6 +97,21 @@ usersRouter.put('/profile', ensureAuthenticated, async (req, res) => {
     }
 });
 
+usersRouter.delete('/:user_id', ensureAuthenticated, async (req, res) => {
+    try {
+        const userId = req.params.user_id;
+
+        if (userId !== req.user.user_id) {
+            return res.status(403).send('You do not have permission to delete this account.');
+        }
+        await pool.query('DELETE FROM users WHERE user_id = $1', [userId]);
+        req.logout();
+        res.status(200).send('Account deleted successfully.');
+    } catch (err) {
+        console.error('Error deleting user account:', err);
+        res.status(500).send('An error occurred while deleting the user account.');
+    }
+});
 
 
 module.exports = usersRouter;
