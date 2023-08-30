@@ -14,7 +14,7 @@ app.use(
         secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: false,
-        cookie: { maxAge: 300000000, secure: true },
+        cookie: { maxAge: 300000000 },
     })
 );
 

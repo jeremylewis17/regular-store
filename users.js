@@ -7,17 +7,22 @@ const usersRouter = express.Router();
 
 // Render the login form page
 usersRouter.get('/login', (req, res, next) => {
-    res.status(200).send('Please log in.'); // Modify this message as needed
+    res.status(200).send('Please log in.');
 });
 
 // Handle login form submission
-usersRouter.post('/login', passport.authenticate('local', { failureRedirect: '/login' }), (req, res) => {
-    res.status(200).send('Login successful.'); // Modify this message as needed
+usersRouter.post('/login', passport.authenticate('local', {failureRedirect: '/login'}), (req, res) => {
+    res.status(200).send('Login successful.');
 });
 
 usersRouter.get('/logout', (req, res) => {
-    req.logout();
-    res.redirect('/'); // Redirect after logout
+    req.logout((err) => {
+        if (err) {
+            console.error('Error logging out:', err);
+            return res.status(500).send('An error occurred while logging out.');
+        }
+        res.status(200).send('Successfully logged out');
+    });
 });
 
 usersRouter.post('/register', async (req, res) => {
@@ -83,6 +88,11 @@ usersRouter.put('/:user_id', ensureAuthenticated, async (req, res) => {
         if (!newUsername && !newPassword) {
             return res.status(400).send('No data provided for update.');
         }
+        // Check if the username already exists
+        const existingUser = await pool.query('SELECT * FROM users WHERE username = $1', [newUsername]);
+        if (existingUser.rows.length > 0) {
+            return res.status(409).send('Username already exists.');
+        }
         if (newUsername) {
             await pool.query('UPDATE users SET username = $1 WHERE user_id = $2', [newUsername, userId]);
         }
@@ -100,7 +110,8 @@ usersRouter.put('/:user_id', ensureAuthenticated, async (req, res) => {
 usersRouter.delete('/:user_id', ensureAuthenticated, async (req, res) => {
     try {
         const userId = req.params.user_id;
-
+        console.log('User ID To Delete: ', userId);
+        console.log('Authenticated User Id: ', req.user.user_id);
         if (userId !== req.user.user_id) {
             return res.status(403).send('You do not have permission to delete this account.');
         }

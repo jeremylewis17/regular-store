@@ -7,7 +7,7 @@ const cartsRouter = express.Router();
 
 
 // Get a user's cart
-cartRouter.get('/:user_id', ensureAuthenticated, async (req, res) => {
+cartsRouter.get('/:user_id', ensureAuthenticated, async (req, res) => {
     try {
         const userId = req.params.user_id;
         const userCart = await pool.query('SELECT items.name, items.description, items.price, cart.quantity FROM cart JOIN items ON cart.item_id = items.item_id WHERE cart.user_id = $1', [userId]);
@@ -24,23 +24,32 @@ cartRouter.get('/:user_id', ensureAuthenticated, async (req, res) => {
 });
 
 // Add an item to the cart
-cartRouter.put('/:user_id', ensureAuthenticated, async (req, res) => {
+cartsRouter.put('/:user_id', ensureAuthenticated, async (req, res) => {
     try {
         const userId = req.params.user_id;
-        const { itemId, quantity } = req.body;
+        const { item_id, quantity } = req.body;
 
         // Validate the request body
-        if (!itemId || !quantity) {
+        if (!item_id || !quantity) {
             return res.status(400).send('Item ID and quantity are required.');
         }
-        // Check if the item exists
-        const item = await pool.query('SELECT * FROM items WHERE item_id = $1', [itemId]);
 
-        if (item.rows.length === 0) {
+        // Check if the item exists
+        const itemResult = await pool.query('SELECT * FROM items WHERE item_id = $1', [item_id]);
+
+        if (itemResult.rows.length === 0) {
             return res.status(404).send('Item not found.');
         }
 
-        await pool.query('INSERT INTO cart (user_id, item_id, quantity) VALUES ($1, $2, $3) ON CONFLICT (user_id, item_id) DO UPDATE SET quantity = $3', [userId, itemId, quantity]);
+        const item = itemResult.rows[0];
+
+        // Check if the requested quantity is available
+        if (quantity > item.quantity) {
+            return res.status(400).send('Requested quantity exceeds available stock.');
+        }
+
+        // Insert the item into the cart
+        await pool.query('INSERT INTO cart (user_id, item_id, quantity) VALUES ($1, $2, $3) ON CONFLICT (user_id, item_id) DO UPDATE SET quantity = $3', [userId, item_id, quantity]);
 
         res.status(200).send('Item added to cart successfully.');
     } catch (err) {
@@ -49,18 +58,19 @@ cartRouter.put('/:user_id', ensureAuthenticated, async (req, res) => {
     }
 });
 
+
 // Delete an item from the cart
-cartRouter.delete('/:user_id', ensureAuthenticated, async (req, res) => {
+cartsRouter.delete('/:user_id', ensureAuthenticated, async (req, res) => {
     try {
         const userId = req.params.user_id;
-        const { item_Id } = req.body;
+        const { item_id } = req.body;
 
         // Validate the request body
-        if (!item_Id) {
+        if (!item_id) {
             return res.status(400).send('Item ID is required.');
         }
 
-        await pool.query('DELETE FROM cart WHERE user_id = $1 AND item_id = $2', [userId, item_Id]);
+        await pool.query('DELETE FROM cart WHERE user_id = $1 AND item_id = $2', [userId, item_id]);
 
         res.status(200).send('Item removed from cart successfully.');
     } catch (err) {
@@ -69,7 +79,7 @@ cartRouter.delete('/:user_id', ensureAuthenticated, async (req, res) => {
     }
 });
 
-cartRouter.post('/:user_id/checkout', ensureAuthenticated, async (req, res) => {
+cartsRouter.post('/:user_id/checkout', ensureAuthenticated, async (req, res) => {
     try {
         const userId = req.params.user_id;
         const client = await pool.connect();
@@ -143,10 +153,6 @@ cartRouter.post('/:user_id/checkout', ensureAuthenticated, async (req, res) => {
         res.status(500).send('An error occurred during cart checkout.');
     }
 });
-
-
-module.exports = cartRouter;
-
 
 
 module.exports = cartsRouter;
