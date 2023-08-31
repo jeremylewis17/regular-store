@@ -1,13 +1,13 @@
 const express = require('express');
 const {pool} = require('./database');  // Import the PostgreSQL pool from database.js
-const {passport, ensureAuthenticated} = require('./passport'); // Import the Passport configuration from passport.js
+const {passport, ensureAuthenticated, ensureAuthorized} = require('./passport'); // Import the Passport configuration from passport.js
 const bcrypt = require('bcrypt');
 
 const cartsRouter = express.Router();
 
 
 // Get a user's cart
-cartsRouter.get('/:user_id', ensureAuthenticated, async (req, res) => {
+cartsRouter.get('/:user_id', ensureAuthenticated, ensureAuthorized, async (req, res) => {
     try {
         const userId = req.params.user_id;
         const userCart = await pool.query('SELECT items.name, items.description, items.price, cart.quantity FROM cart JOIN items ON cart.item_id = items.item_id WHERE cart.user_id = $1', [userId]);
@@ -24,7 +24,7 @@ cartsRouter.get('/:user_id', ensureAuthenticated, async (req, res) => {
 });
 
 // Add an item to the cart
-cartsRouter.put('/:user_id', ensureAuthenticated, async (req, res) => {
+cartsRouter.put('/:user_id', ensureAuthenticated, ensureAuthorized, async (req, res) => {
     try {
         const userId = req.params.user_id;
         const { item_id, quantity } = req.body;
@@ -60,7 +60,7 @@ cartsRouter.put('/:user_id', ensureAuthenticated, async (req, res) => {
 
 
 // Delete an item from the cart
-cartsRouter.delete('/:user_id', ensureAuthenticated, async (req, res) => {
+cartsRouter.delete('/:user_id', ensureAuthenticated, ensureAuthorized, async (req, res) => {
     try {
         const userId = req.params.user_id;
         const { item_id } = req.body;
@@ -79,7 +79,7 @@ cartsRouter.delete('/:user_id', ensureAuthenticated, async (req, res) => {
     }
 });
 
-cartsRouter.post('/:user_id/checkout', ensureAuthenticated, async (req, res) => {
+cartsRouter.post('/:user_id/checkout', ensureAuthenticated, ensureAuthorized, async (req, res) => {
     try {
         const userId = req.params.user_id;
         const client = await pool.connect();
@@ -108,6 +108,34 @@ cartsRouter.post('/:user_id/checkout', ensureAuthenticated, async (req, res) => 
                 totalAmount += price * quantity;
                 orderItems.push({ item_id, quantity });
             });
+
+            // Check item quantities before reducing
+            for (const { item_id, quantity } of orderItems) {
+                const checkItemQuantityQuery = `
+                    SELECT quantity FROM items WHERE item_id = $1
+                `;
+                const checkItemResult = await client.query(checkItemQuantityQuery, [item_id]);
+
+                if (checkItemResult.rows.length === 0) {
+                    throw new Error('Item not found.');
+                }
+
+                const currentQuantity = checkItemResult.rows[0].quantity;
+
+                if (currentQuantity < quantity) {
+                    throw new Error('Insufficient quantity in store.');
+                }
+            }
+            
+            // Reduce item stock in items table
+            for (const { item_id, quantity } of orderItems) {
+                const updateItemQuantityQuery = `
+                    UPDATE items
+                    SET quantity = quantity - $2
+                    WHERE item_id = $1
+                `;
+                await client.query(updateItemQuantityQuery, [item_id, quantity]);
+            }
 
             // Create an order in the orders table
             const createOrderQuery = `
@@ -150,7 +178,7 @@ cartsRouter.post('/:user_id/checkout', ensureAuthenticated, async (req, res) => 
         }
     } catch (err) {
         console.error('Error during cart checkout:', err);
-        res.status(500).send('An error occurred during cart checkout.');
+        res.status(500).send('An error occurred during cart checkout: ' + err.message);
     }
 });
 

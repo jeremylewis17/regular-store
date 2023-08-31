@@ -50,7 +50,19 @@ function ensureAuthenticated(req, res, next) {
     // User is not authenticated; redirect to login
     res.status(401).send('You must log in to view this page');
 }
+//authorization middleware
+function ensureAuthorized(req, res, next) {
+    // Check if the authenticated user's user_id matches the user_id in the URL
+    const authenticatedUserId = Number(req.user.user_id);
+    const requestedUserId = Number(req.params.user_id);
+    console.log('authenticated user id: ' , authenticatedUserId);
+    console.log('requested user id: ' , requestedUserId);
+
+    if (authenticatedUserId !== requestedUserId) {
+        return res.status(403).send('You are not authorized to perform this action.');
+    }
+    next();
+}
 
 
-
-module.exports = {passport, ensureAuthenticated};
+module.exports = {passport, ensureAuthenticated, ensureAuthorized};

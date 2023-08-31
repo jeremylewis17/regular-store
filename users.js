@@ -1,6 +1,6 @@
 const express = require('express');
 const {pool} = require('./database');  // Import the PostgreSQL pool from database.js
-const {passport, ensureAuthenticated} = require('./passport'); // Import the Passport configuration from passport.js
+const {passport, ensureAuthenticated, ensureAuthorized} = require('./passport'); // Import the Passport configuration from passport.js
 const bcrypt = require('bcrypt');
 
 const usersRouter = express.Router();
@@ -59,7 +59,7 @@ usersRouter.post('/register', async (req, res) => {
     }
 });
 
-usersRouter.get('/:user_id', ensureAuthenticated, async (req, res) => {
+usersRouter.get('/:user_id', ensureAuthenticated, ensureAuthorized, async (req, res) => {
     try {
         const userId = req.params.user_id;
         console.log('User ID:', userId);
@@ -79,7 +79,7 @@ usersRouter.get('/:user_id', ensureAuthenticated, async (req, res) => {
     }
 });
 
-usersRouter.put('/:user_id', ensureAuthenticated, async (req, res) => {
+usersRouter.put('/:user_id', ensureAuthenticated, ensureAuthorized, async (req, res) => {
     try {
         const userId = req.params.user_id;
         // Retrieve the new profile data from the request body
@@ -107,14 +107,11 @@ usersRouter.put('/:user_id', ensureAuthenticated, async (req, res) => {
     }
 });
 
-usersRouter.delete('/:user_id', ensureAuthenticated, async (req, res) => {
+usersRouter.delete('/:user_id', ensureAuthenticated, ensureAuthorized, async (req, res) => {
     try {
         const userId = req.params.user_id;
         console.log('User ID To Delete: ', userId);
         console.log('Authenticated User Id: ', req.user.user_id);
-        if (userId !== req.user.user_id) {
-            return res.status(403).send('You do not have permission to delete this account.');
-        }
         await pool.query('DELETE FROM users WHERE user_id = $1', [userId]);
         req.logout();
         res.status(200).send('Account deleted successfully.');
