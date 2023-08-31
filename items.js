@@ -1,6 +1,6 @@
 const express = require('express');
 const {pool} = require('./database');  // Import the PostgreSQL pool from database.js
-const {passport, ensureAuthenticated, ensureAuthorized} = require('./passport'); // Import the Passport configuration from passport.js
+const {passport, ensureAuthenticated, ensureManager} = require('./passport'); // Import the Passport configuration from passport.js
 const bcrypt = require('bcrypt');
 
 const itemsRouter = express.Router();
@@ -24,7 +24,7 @@ itemsRouter.get('/:item_id', async (req, res) => {
 });
 
 // PUT endpoint to restock an item by item_id
-itemsRouter.put('/:item_id', ensureAuthenticated, async (req, res) => {
+itemsRouter.put('/:item_id', ensureAuthenticated, ensureManager, async (req, res) => {
     try {
       const itemId = req.params.item_id;
       const { quantity } = req.body;

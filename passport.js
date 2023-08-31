@@ -41,7 +41,7 @@ passport.use(new LocalStrategy(async (username, password, done) => {
 
 // Passport.js middleware for ensuring authentication
 function ensureAuthenticated(req, res, next) {
-    console.log(req.isAuthenticated());
+    console.log('is user authenticated: ' , req.isAuthenticated());
     if (req.isAuthenticated()) {
         // User is authenticated; proceed to the next middleware
         return next();
@@ -50,8 +50,16 @@ function ensureAuthenticated(req, res, next) {
     // User is not authenticated; redirect to login
     res.status(401).send('You must log in to view this page');
 }
+
 //authorization middleware
 function ensureAuthorized(req, res, next) {
+    // Check if the user is a manager
+    const userRole = req.user.role;
+    if (userRole === 'manager') {
+        console.log('manager id: ', req.user.user_id);
+        return next();
+    }
+
     // Check if the authenticated user's user_id matches the user_id in the URL
     const authenticatedUserId = Number(req.user.user_id);
     const requestedUserId = Number(req.params.user_id);
@@ -64,5 +72,14 @@ function ensureAuthorized(req, res, next) {
     next();
 }
 
+// Middleware to check if the authenticated user is a manager
+function ensureManager(req, res, next) {
+    if (req.user.role === 'manager') {
+      return next();
+    }
+    // User is not a manager; send a forbidden response
+    res.status(403).send('Permission denied. You must be a manager to perform this action.');
+  }
 
-module.exports = {passport, ensureAuthenticated, ensureAuthorized};
+
+module.exports = {passport, ensureAuthenticated, ensureAuthorized, ensureManager};
