@@ -66,4 +66,31 @@ itemsRouter.get('/', async (req, res) => {
     }
 });
 
+itemsRouter.post('/', ensureAuthenticated, ensureManager, async (req, res) => {
+    try {
+        const { name, description, price, quantity } = req.body;
+
+        // Validate input
+        if (!name || !description || isNaN(price) || isNaN(quantity) || price <= 0 || quantity <= 0) {
+            return res.status(400).send('Invalid item details provided.');
+        }
+
+        // Insert the new item into the database
+        const insertQuery = `
+            INSERT INTO items (name, description, price, quantity)
+            VALUES ($1, $2, $3, $4)
+            RETURNING item_id
+        `;
+        const result = await pool.query(insertQuery, [name, description, price, quantity]);
+
+        // Return the ID of the newly created item
+        const newItemId = result.rows[0].item_id;
+        res.status(201).json({ item_id: newItemId, message: 'Item created successfully.' });
+    } catch (err) {
+        console.error('Error creating item:', err);
+        res.status(500).send('An error occurred while creating the item.');
+    }
+});
+
+
 module.exports = itemsRouter;
