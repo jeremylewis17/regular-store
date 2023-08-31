@@ -48,7 +48,9 @@ function ensureAuthenticated(req, res, next) {
     }
 
     // User is not authenticated; redirect to login
-    res.redirect('/login');
+    res.status(401).send('You must log in to view this page');
 }
+
+
 
 module.exports = {passport, ensureAuthenticated};
