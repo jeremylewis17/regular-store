@@ -1,0 +1,19 @@
+
+.contact{
+    background-color: #f4a4f4;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin: 20px;
+  }
+  
+  .contact h2 {
+    color: #333;
+    font-size: 24px;
+  }
+  
+  .contact p {
+    margin: 8px 0;
+    font-size: 16px;
+  }
+  
