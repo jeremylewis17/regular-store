@@ -12,7 +12,7 @@ usersRouter.get('/login', (req, res, next) => {
 
 // Handle login form submission
 usersRouter.post('/login', passport.authenticate('local', {failureRedirect: '/login'}), (req, res) => {
-    res.status(200).send('Login successful.');
+    res.status(200).send(req.user);
 });
 
 usersRouter.get('/logout', (req, res) => {
@@ -63,7 +63,7 @@ usersRouter.get('/:user_id', ensureAuthenticated, ensureAuthorized, async (req, 
     try {
         const userId = req.params.user_id;
         console.log('User ID:', userId);
-        const userProfile = await pool.query('SELECT username FROM users WHERE user_id = $1', [userId]);
+        const userProfile = await pool.query('SELECT * FROM users WHERE user_id = $1', [userId]);
         console.log('User Profile:', userProfile.rows[0]);
 
         if (userProfile.rows.length === 0) {
@@ -72,7 +72,7 @@ usersRouter.get('/:user_id', ensureAuthenticated, ensureAuthorized, async (req, 
         }
 
         // Send the user's profile information as JSON
-        res.status(200).json({ userProfile: userProfile.rows[0].username });
+        res.status(200).send(req.user);
     } catch (err) {
         console.error('Error fetching user profile:', err);
         res.status(500).send('An error occurred while fetching the user profile.');

@@ -26,9 +26,9 @@ export const updateUser = async (user_id, newUsername, newPassword) => {
 }
 
 // API interface for logging a user in
-export const loginUser = async (credentials) => {
+export const loginUser = async (username, password) => {
   try {
-    const response = await API.post('users/login', credentials);
+    const response = await API.post('users/login', { username, password });
 
     return response.data;
 
@@ -38,12 +38,23 @@ export const loginUser = async (credentials) => {
 }
 
 // API interface for registering a user
-export const registerUser = async (data) => {
+export const registerUser = async (username, password) => {
   try {
-    const response = await API.post('users/register', data);
+    const response = await API.post('users/register', { username, password });
 
     return response.data;
 
+  } catch(err) {
+    throw err.response.data;
+  }
+}
+
+//API interface for logging a user out
+export const logoutUser = async () => {
+  try {
+    const response = await API.get('users/logout');
+
+    return response.data;
   } catch(err) {
     throw err.response.data;
   }

@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 import { 
   fetchCart, 
@@ -8,15 +8,16 @@ import {
 import { fetchOrder, fetchOrders } from "../apis/order";
 import { fetchProducts, fetchProduct } from "../apis/product";
 import { fetchUser, updateUser, loginUser, registerUser } from "../apis/user";
+import { AuthContext } from "./auth-context";
 
 export const ShopContext = createContext(null);
 
 
 export const ShopContextProvider = (props) => {
-  const [user_id, setUser_id] = useState();
   const [cartItems, setCartItems] = useState([]);
   const [products, setProducts] = useState([]);
-
+  const { currentUser } = useContext(AuthContext);
+  const user_id = currentUser? currentUser.user_id : null;
 
    // Fetch Data from API
    useEffect(() => {
@@ -40,10 +41,10 @@ export const ShopContextProvider = (props) => {
 
     fetchProductsData();
     fetchCartData(user_id);
-  }, []);
+  }, [user_id]);
 
 
-  const getTotalCartAmount = () => {
+  function getTotalCartAmount() {
     let totalAmount = 0;
     for (const item in cartItems) {
         totalAmount += item.price * item.quantity;
@@ -51,7 +52,7 @@ export const ShopContextProvider = (props) => {
     return totalAmount;
   };
 
-  const addToCart = async (item_id, quantity) => {
+  async function addToCart(item_id, quantity) {
     try {
       await apiAddToCart(user_id, item_id, quantity);
     } catch (error) {
@@ -65,7 +66,7 @@ export const ShopContextProvider = (props) => {
       }
     };
 
-  const removeFromCart = async (item_id) => {
+  async function removeFromCart(item_id) {
     try {
       await apiRemoveFromCart(user_id, item_id);
     } catch (error) {
@@ -79,7 +80,7 @@ export const ShopContextProvider = (props) => {
       }
   };
 
-  const checkout = async () => {
+  async function checkout() {
     try {
       // Call the API to perform checkout
       await apiCheckout(user_id);
