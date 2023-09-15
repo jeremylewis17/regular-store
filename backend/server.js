@@ -4,6 +4,7 @@ const session = require('express-session');
 const {passport} = require('./passport'); // Import the Passport configuration from passport.js
 const apiRouter = require('./routes'); // Import the server routes from routes.js
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const cors = require('cors')
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true }));
 app.use(express.json());
+app.use(cookieParser(process.env.SESSION_SECRET));
 app.use(passport.initialize());
 app.use(passport.session());
 

@@ -7,7 +7,7 @@ export const Login = () => {
     const emailRef = useRef();
     const passwordRef = useRef();
     const passwordConfirmRef = useRef();
-    const { loginUser } = useContext(AuthContext);
+    const { currentUser, loginUser } = useContext(AuthContext);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -19,7 +19,7 @@ export const Login = () => {
             setError('');
             setLoading(true);
             await loginUser(emailRef.current.value, passwordRef.current.value);
-            navigate("/");
+            if (currentUser) navigate("/");
         } catch {
             setError('Failed to login');
         }
@@ -32,7 +32,7 @@ export const Login = () => {
             <Card>
                 <Card.Body>
                     <h2 className="Sign-Up-Header">Log In</h2>
-                    {error && <Alert variant="danger">{error}</Alert>}
+                    {error && <h3>{error}</h3>}
                     <Form onSubmit={handleSubmit}>
                         <Form.Group id="email">
                             <Form.Label>Email</Form.Label>

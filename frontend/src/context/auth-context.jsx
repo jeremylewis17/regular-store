@@ -12,7 +12,8 @@ export const AuthContext = createContext(null);
 
 
 export const AuthContextProvider = (props) => {
-    const [currentUser, setCurrentUser] = useState();
+    const [currentUser, setCurrentUser] = useState(null);
+    const [loginRegistrationError, setLoginRegistrationError] = useState('');
     const [loading, setLoading] = useState(true);
 
 
@@ -36,8 +37,12 @@ export const AuthContextProvider = (props) => {
 
     async function loginUser(username, password) {
         try{
-            const user = await apiLoginUser(username, password);
-            setCurrentUser(user);
+            const response = await apiLoginUser(username, password);
+            if (response.status === 200) {
+                setCurrentUser(response.data);
+            } else {
+                setLoginRegistrationError('Unsuccessful Login');
+            }
         } catch (error) {
             console.error("Error logging in: ", error);
         }

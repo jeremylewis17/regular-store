@@ -30,7 +30,7 @@ export const loginUser = async (username, password) => {
   try {
     const response = await API.post('users/login', { username, password });
 
-    return response.data;
+    return response;
 
   } catch (err) {
     throw err.response.data;

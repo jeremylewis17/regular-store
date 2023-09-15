@@ -1,7 +1,11 @@
+require('dotenv').config();
+
 const express = require('express');
 const {pool} = require('./database');  // Import the PostgreSQL pool from database.js
 const {passport, ensureAuthenticated, ensureAuthorized} = require('./passport'); // Import the Passport configuration from passport.js
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const jwtSecret = process.env.JWT_SECRET;
 
 const usersRouter = express.Router();
 
@@ -10,10 +14,74 @@ usersRouter.get('/login', (req, res, next) => {
     res.status(200).send('Please log in.');
 });
 
+
+//usersRouter.post('/login', async (req, res, next) => {
+//    
+//    
+//    const username = req.body.username;
+//    try{
+//    const userData = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+//
+//    const user_id = userData.user_id;
+//    const role = userData.role;
+//
+//    const user = { user_id: user_id, role: role };
+//    const accessToken = jwt.sign(user, jwtSecret);
+//    res.status(200).json({ accessToken });
+//    } catch (err) {
+//        res.status(400).send("error occured while logging in: ", err);
+//    }
+//  
+//});
+
+
 // Handle login form submission
-usersRouter.post('/login', passport.authenticate('local', {failureRedirect: '/login'}), (req, res) => {
-    res.status(200).send(req.user);
+usersRouter.post('/login', async (req, res, next) => {
+    const { username, password } = req.body;
+
+    try {
+        // Check the username and password
+        const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+        const user = result.rows[0];
+
+        if (!user) {
+            return res.status(401).send('No User Exists');
+        }
+
+        const passwordMatch = await bcrypt.compare(password, user.hashed_password);
+
+        if (!passwordMatch) {
+            return res.status(401).send('Invalid Password');
+        }
+
+        // If authentication is successful, issue a JWT token
+        const payload = {
+            sub: user.user_id,
+            role: user.role,
+        };
+
+        const accessToken = jwt.sign(payload, jwtSecret);
+
+        res.status(200).json({ accessToken });
+    } catch (err) {
+        res.status(400).send("Error occurred while logging in: " + err);
+    }
 });
+
+
+//usersRouter.post('/login', (req, res, next) => {
+//    passport.authenticate('jwt', async (err, user, info) => {
+//      if (err) return next(err);
+//      if (!user) return res.status(401).send('No User Exists');
+//  
+//      // If authentication is successful, issue a JWT token
+//      const payload = { sub: user.user_id };
+//      const token = jwt.sign(payload, jwtSecret);
+//  
+//      res.status(200).json({ token });
+//    })(req, res, next);
+//  });
+
 
 usersRouter.get('/logout', (req, res) => {
     req.logout((err) => {
@@ -72,7 +140,7 @@ usersRouter.get('/:user_id', ensureAuthenticated, ensureAuthorized, async (req, 
         }
 
         // Send the user's profile information as JSON
-        res.status(200).send(req.user);
+        res.status(200).json(userProfile.rows[0]);
     } catch (err) {
         console.error('Error fetching user profile:', err);
         res.status(500).send('An error occurred while fetching the user profile.');
