@@ -1,9 +1,11 @@
 import React, { useContext, useEffect } from "react";
 import { ShopContext } from "../../context/shop-context";
+import { AuthContext } from "../../context/auth-context";
 
 export const Product = (props) => {
   const { item_id, name, description, price, quantity } = props.data;
   const { addToCart, cartItems } = useContext(ShopContext);
+  const { currentUser } = useContext(AuthContext);
 
   function getQuantityByItemId (cartItems, itemId) {
     for (const item of cartItems) {
@@ -28,7 +30,7 @@ export const Product = (props) => {
         <p> {description}</p>
       </div>
       <button className="addToCartBttn" onClick={() => addToCart(item_id, oneMoreItemCount)}>
-        Add To Cart {cartItemCount() > 0 && <> ({cartItemCount()})</>}
+        Add To Cart {currentUser && cartItemCount() > 0 && <> ({cartItemCount()})</>}
       </button>
     </div>
   );

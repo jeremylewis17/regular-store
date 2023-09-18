@@ -55,7 +55,7 @@ export const ShopContextProvider = (props) => {
     }
     totalAmount = Math.round(totalAmount * 100) / 100;
   
-    return totalAmount;
+    return totalAmount.toFixed(2);
   }
   
 

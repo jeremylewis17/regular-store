@@ -24,17 +24,17 @@ export const CartItem = (props) => {
     <div className="cartItem">
       <div className="description">
         <p>
-          <b>{name}</b>
+          <b>{name} ({getQuantityByItemId(cartItems, item_id)})</b>
         </p>
-        <p>Price: ${price}</p>
+        <p>Price: ${price} each</p>
         <div className="countHandler">
-          <p>Quantity: </p>
+          <p>Change Quantity: </p>
           <input
             value={inputQuantity}
             onChange={(e) => setInputQuantity(e.target.value)}
             onBlur={handleQuantityChange}
           />
-          <button onClick={() => removeFromCart(item_id)}>Remove</button>
+          <button onClick={() => removeFromCart(item_id)}>Remove Item</button>
         </div>
       </div>
     </div>

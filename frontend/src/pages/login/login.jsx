@@ -11,26 +11,36 @@ export const Login = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        if (currentUser) {
+            navigate("/");
+        }
+    }, [currentUser, navigate]);
+
     async function handleSubmit(e) {
         e.preventDefault();
+        setError('');
+        setLoading(true);
     
         try {
-            setError('');
-            setLoading(true);
-            await loginUser(emailRef.current.value, passwordRef.current.value)
-                .then(() => {
-                    if (currentUser) {
-                        navigate("/");
-                    } else {
-                        setError('Login failed. Check your credentials.');
-                    }
-                });
-        } catch {
+            await loginUser(emailRef.current.value, passwordRef.current.value);
+            console.log('currentUser after login:', currentUser);
+            // Check if currentUser is updated
+            if (currentUser) {
+                console.log('Navigating to "/"');
+                navigate("/");
+            } else {
+                setError('Login failed. Check your credentials.');
+            }
+        } catch (error) {
+            console.error('Error logging in:', error);
             setError('Failed to login');
         }
     
         setLoading(false);
     }
+    
+    
 
     return (
         <>
