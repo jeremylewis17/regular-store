@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Form, Button, Card, Alert } from 'react-bootstrap';
 import { AuthContext } from "../../context/auth-context";
 import { Link, useNavigate } from "react-router-dom";
@@ -6,7 +6,6 @@ import { Link, useNavigate } from "react-router-dom";
 export const Login = () => {
     const emailRef = useRef();
     const passwordRef = useRef();
-    const passwordConfirmRef = useRef();
     const { currentUser, loginUser } = useContext(AuthContext);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -14,16 +13,22 @@ export const Login = () => {
 
     async function handleSubmit(e) {
         e.preventDefault();
-
+    
         try {
             setError('');
             setLoading(true);
-            await loginUser(emailRef.current.value, passwordRef.current.value);
-            if (currentUser) navigate("/");
+            await loginUser(emailRef.current.value, passwordRef.current.value)
+                .then(() => {
+                    if (currentUser) {
+                        navigate("/");
+                    } else {
+                        setError('Login failed. Check your credentials.');
+                    }
+                });
         } catch {
             setError('Failed to login');
         }
-
+    
         setLoading(false);
     }
 
@@ -32,7 +37,7 @@ export const Login = () => {
             <Card>
                 <Card.Body>
                     <h2 className="Sign-Up-Header">Log In</h2>
-                    {error && <h3>{error}</h3>}
+                    {error && <Alert variant="danger">{error}</Alert>}
                     <Form onSubmit={handleSubmit}>
                         <Form.Group id="email">
                             <Form.Label>Email</Form.Label>
@@ -51,7 +56,6 @@ export const Login = () => {
             <div className="Login-button">
                 Don't have an account? <Link to="/register">Sign Up Here</Link>
             </div>
-        
         </>
     );
 };

@@ -62,26 +62,11 @@ usersRouter.post('/login', async (req, res, next) => {
 
         const accessToken = jwt.sign(payload, jwtSecret);
 
-        res.status(200).json({ accessToken });
+        res.status(200).json({ username: user.username, user_id: user.user_id, accessToken: accessToken });
     } catch (err) {
         res.status(400).send("Error occurred while logging in: " + err);
     }
 });
-
-
-//usersRouter.post('/login', (req, res, next) => {
-//    passport.authenticate('jwt', async (err, user, info) => {
-//      if (err) return next(err);
-//      if (!user) return res.status(401).send('No User Exists');
-//  
-//      // If authentication is successful, issue a JWT token
-//      const payload = { sub: user.user_id };
-//      const token = jwt.sign(payload, jwtSecret);
-//  
-//      res.status(200).json({ token });
-//    })(req, res, next);
-//  });
-
 
 usersRouter.get('/logout', (req, res) => {
     req.logout((err) => {

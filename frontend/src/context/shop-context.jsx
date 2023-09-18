@@ -33,7 +33,11 @@ export const ShopContextProvider = (props) => {
     async function fetchCartData() {
       try {
       const cartData = await fetchCart(user_id);
+      if (cartData.empty === true){
+        setCartItems([]);
+      } else {
       setCartItems(cartData);
+      }
       } catch (error) {
         console.error("Error fetching cart data: ", error);
       }
@@ -41,16 +45,19 @@ export const ShopContextProvider = (props) => {
 
     fetchProductsData();
     fetchCartData(user_id);
-  }, [user_id]);
-
+  }, [user_id, cartItems]);
 
   function getTotalCartAmount() {
     let totalAmount = 0;
-    for (const item in cartItems) {
-        totalAmount += item.price * item.quantity;
+    
+    for (const item of cartItems) { 
+      totalAmount += item.price * item.quantity;
     }
+    totalAmount = Math.round(totalAmount * 100) / 100;
+  
     return totalAmount;
-  };
+  }
+  
 
   async function addToCart(item_id, quantity) {
     try {

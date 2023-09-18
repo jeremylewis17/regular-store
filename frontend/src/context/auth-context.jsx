@@ -16,7 +16,13 @@ export const AuthContextProvider = (props) => {
     const [loginRegistrationError, setLoginRegistrationError] = useState('');
     const [loading, setLoading] = useState(true);
 
-
+    useEffect(() => {
+        const storedToken = localStorage.getItem('jwtToken');
+        if (storedToken) {
+            // Token exists, set currentUser or perform token validation here
+        }
+        setLoading(false);
+    }, [currentUser]);
 
     async function getUser(user_id) {
         try {
@@ -36,22 +42,25 @@ export const AuthContextProvider = (props) => {
     };
 
     async function loginUser(username, password) {
-        try{
+        try {
             const response = await apiLoginUser(username, password);
             if (response.status === 200) {
-                setCurrentUser(response.data);
+                const jwtToken = response.data.accessToken;
+                localStorage.setItem('jwtToken', jwtToken);
+                setCurrentUser({user_id: response.data.user_id, username: response.data.username});
             } else {
                 setLoginRegistrationError('Unsuccessful Login');
-            }
+            };
         } catch (error) {
             console.error("Error logging in: ", error);
         }
     };
 
     async function logoutUser() {
-        try{
+        try {
             await apiLogoutUser();
-            setCurrentUser(null);
+            localStorage.removeItem('jwtToken'); // Remove the JWT token
+            setCurrentUser(null); // Clear the user state
         } catch (error) {
             console.error("Error logging out: ", error);
         }

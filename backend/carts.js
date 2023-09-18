@@ -13,7 +13,7 @@ cartsRouter.get('/:user_id', ensureAuthenticated, ensureAuthorized, async (req, 
         const userCart = await pool.query('SELECT items.item_id, items.name, items.description, items.price, cart.quantity FROM cart JOIN items ON cart.item_id = items.item_id WHERE cart.user_id = $1', [userId]);
 
         if (userCart.rows.length === 0) {
-            return res.status(404).send('Cart not found.');
+            return res.status(200).json({empty: true});
         }
         // Send the user's cart information as JSON
         res.status(200).json(userCart.rows);
