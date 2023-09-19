@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 
 import { 
   fetchCart, 
@@ -19,33 +19,34 @@ export const ShopContextProvider = (props) => {
   const { currentUser } = useContext(AuthContext);
   const user_id = currentUser? currentUser.user_id : null;
 
-   // Fetch Data from API
-   useEffect(() => {
-    async function fetchProductsData() {
-      try {
-        const productsData = await fetchProducts();
-        setProducts(productsData);
-      } catch (error) {
-        console.error("Error fetching products: ", error);
-      }
-    }
-
-    async function fetchCartData() {
-      try {
+  const fetchCartData = useCallback(async () => {
+    try {
       const cartData = await fetchCart(user_id);
-      if (cartData.empty === true){
+      if (cartData.empty === true) {
         setCartItems([]);
       } else {
-      setCartItems(cartData);
+        setCartItems(cartData);
       }
-      } catch (error) {
-        console.error("Error fetching cart data: ", error);
-      }
+    } catch (error) {
+      console.error("Error fetching cart data: ", error);
     }
+  }, [user_id]);
+
+  async function fetchProductsData() {
+    try {
+      const productsData = await fetchProducts();
+      setProducts(productsData);
+    } catch (error) {
+      console.error("Error fetching products: ", error);
+    }
+  }
+
+  useEffect(() => {
 
     fetchProductsData();
-    fetchCartData(user_id);
-  }, [user_id, cartItems]);
+    fetchCartData();
+
+  }, [fetchCartData]);
 
   function getTotalCartAmount() {
     let totalAmount = 0;
@@ -81,7 +82,11 @@ export const ShopContextProvider = (props) => {
     }
     try {
       const cartData = await fetchCart(user_id);
-      setCartItems(cartData);
+      if (cartData.empty === true) {
+        setCartItems([]);
+      } else {
+        setCartItems(cartData);
+      }
       } catch (error) {
         console.error("Error fetching cart data: ", error);
       }
@@ -94,6 +99,7 @@ export const ShopContextProvider = (props) => {
 
       // Clear the cart items in the state
       setCartItems([]);
+      fetchProductsData();
     } catch (error) {
       console.error("Error during checkout:", error);
     }
