@@ -19,7 +19,7 @@ export const Navbar = () => {
         <Link to="/"> Shop </Link>
         <Link to="/contact"> Contact </Link>
         { userName && (<Link to="/cart">
-          <ShoppingCart size={27} /> {userName && cartItems.length > 0 && <span className="small-cart-count">({cartItems.length})</span>}
+          <ShoppingCart size={27} /> {userName && cartItems.length > 0 && <span id="small-cart-count">({cartItems.length})</span>}
         </Link>)}
         { userName && (<Link to="/login" onClick={logoutUser}> Logout </Link>)}
       </div>

@@ -1,28 +1,37 @@
+/* Apply your existing styles to the cart */
+
 .cart {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  margin-bottom: 50px;
+}
+
+/* Style for "Your Cart Items" */
+.cart-title {
+  font-size: 24px; /* Adjust the font size */
+  margin-bottom: 20px; /* Add some bottom margin for spacing */
 }
 
 .cartItem {
-  width: 700px;
-  height: 250px;
+  width: 100%; /* Adjust the width as needed */
+  max-width: 700px; /* Set a maximum width */
   display: flex;
-  justify-content: space-between; /* Center elements horizontally */
+  justify-content: center;
   align-items: center;
   box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
   border-radius: 25px;
-  margin: 30px;
-  padding: 0 20px; /* Add some padding for spacing */
+  margin: 10px 0; /* Adjust the vertical margin between items */
+  padding: 10px 20px; /* Adjust the padding for spacing */
 }
 
 .cartItem img {
-  width: 200px;
+  width: 150px; /* Adjust the image size */
 }
 
 .cartItem .description {
-  font-size: 30px;
+  font-size: 24px; /* Adjust the font size for cart items */
 }
 
 .countHandler {
@@ -32,7 +41,7 @@
 
 .countHandler p {
   margin: 0;
-  font-size: 12px;
+  font-size: 14px; /* Adjust the font size for quantity text */
 }
 
 .countHandler input {
@@ -51,4 +60,8 @@
   border-radius: 8px;
   margin: 10px;
   cursor: pointer;
+}
+
+.checkout button:hover {
+  background-color: rgb(81, 81, 81);
 }

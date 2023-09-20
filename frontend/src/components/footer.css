@@ -1,43 +1,33 @@
-
-  .navbar {
+.footer {
     width: 100%;
-    height: 70px;
     background-color: rgb(129, 172, 229);
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    position: sticky;
-    margin-bottom: 0px;
+    padding-top: 100px;
+    bottom: 0;
+    position: bottom;
   }
   
-
-  .links {
+  .footer-content {
     margin-right: 30px;
     display: flex;
     align-items: center;
   }
   
-  .links a {
+  .footer-content a {
     text-decoration: none;
     color: black;
     margin-left: 20px;
     padding: 7px;
     font-size: 25px;
   }
-
-  #small-cart-count {
-    font-size: 17px; 
-    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-  }
-
-  .links a#small-cart-count:hover {
-    padding-bottom: 0px;
-  }
   
-
-  .links a:hover{
+  .footer-content a:hover {
     background-color: white;
-    padding: 21px 7px;
+    padding: 7px;
+    padding-top: 15px;
+    padding-bottom: 16px;
   }
   

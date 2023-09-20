@@ -1,0 +1,78 @@
+.Login-Page {
+    margin-bottom: 200px;
+    display: flex;
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+  }
+  
+  .card {
+    width: 400px; /* Adjust the width as needed */
+    margin-top: 50px; /* Add some top margin for spacing */
+    margin-bottom: 100px;
+    background-color: rgb(129, 172, 229);
+    border-radius: 10px; /* Add some border-radius for rounded corners */
+    box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+
+  .card-body {
+    padding: 20px;
+  }
+  
+ 
+  .form-label {
+  font-size: 20px;
+  font-weight: bold;
+  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  margin-bottom: 10px;
+}
+  
+  /* Style the form input fields */
+  .form-control {
+    margin-top: 8px;
+    margin-bottom: 15px;
+    border-radius: 5px; 
+    width: 100%;
+    height: 30px;
+    font-size: medium;
+  }
+  
+  /* Center the submit button */
+  .submit-button {
+    width: 100%; /* Take up the full width of the container */
+    height: 50px;
+    background-color: rgb(19, 19, 19);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    margin-top: 15px; /* Add top margin to separate it from the input fields */
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .submit-button:hover {
+    background-color: rgb(81, 81, 81);
+  }
+  
+  /* Style the "Sign Up Here" link */
+  .Register-button {
+    text-align: center;
+    margin-top: 15px;
+  }
+  
+  .Register-button a {
+    text-decoration: none;
+    background-color: rgb(129, 172, 229);
+    color: black;
+    font-weight: bold;
+    font-size: 18px;
+    padding: 15px;
+    border-radius: 5px;
+    display: block; /* Make it a block-level element to take full width */
+  }
+  
+  .Register-button a:hover {
+    color: rgb(19, 19, 19);
+    background-color: rgb(154, 195, 249);
+  }
+  

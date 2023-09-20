@@ -2,6 +2,8 @@ import React, { useContext, useRef, useState } from "react";
 import { Form, Button, Card, Alert } from 'react-bootstrap';
 import { AuthContext } from "../../context/auth-context";
 import { Link, Navigate, useNavigate } from "react-router-dom";
+import "./register.css";
+
 
 export const Register = () => {
     const emailRef = useRef();
@@ -17,7 +19,7 @@ export const Register = () => {
         e.preventDefault();
 
         if (passwordRef.current.value !== passwordConfirmRef.current.value) {
-            return setError('Passowrds do not match');
+            return setError('Error: Passwords must match');
         }
         try {
             setError('');
@@ -32,7 +34,7 @@ export const Register = () => {
     }
 
     return (
-        <>
+        <div className="Register-Page">
             <Card>
                 <Card.Body>
                     <h2 className="Sign-Up-Header">Sign Up</h2>
@@ -60,6 +62,6 @@ export const Register = () => {
                 Already have an account? <Link to="/login">Log In</Link>
             </div>
         
-        </>
+        </div>
     );
 };
