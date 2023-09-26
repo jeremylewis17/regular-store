@@ -17,10 +17,11 @@ export const Navbar = () => {
         { userName == null && <Link to="/login"> Login </Link>}
         { userName && <>Welcome, {userName}</>}
         <Link to="/"> Shop </Link>
-        <Link to="/contact"> Contact </Link>
         { userName && (<Link to="/cart">
           <ShoppingCart size={27} /> {userName && cartItems.length > 0 && <span id="small-cart-count">({cartItems.length})</span>}
         </Link>)}
+        { userName && (<Link to="/orders"> Orders </Link>)}
+        <Link to="/contact"> Contact </Link>
         { userName && (<Link to="/login" onClick={logoutUser}> Logout </Link>)}
       </div>
     </div>

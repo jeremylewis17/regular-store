@@ -114,28 +114,6 @@ function ensureAuthorized(req, res, next) {
     // Check if the authenticated user's user_id matches the user_id in the URL
     const authenticatedUserId = Number(req.user.user_id);
     const requestedUserId = Number(req.params.user_id);
-    console.log('authenticated user id: ', authenticatedUserId);
-    console.log('requested user id: ', requestedUserId);
-
-    if (authenticatedUserId !== requestedUserId) {
-        return res.status(403).send('You are not authorized to perform this action.');
-    }
-    next();
-}
-
-
-
-function ensureAuthorized(req, res, next) {
-    // Check if the user is a manager
-    const userRole = req.user.role;
-    if (userRole === 'manager') {
-        console.log('manager id: ', req.user.user_id);
-        return next();
-    }
-
-    // Check if the authenticated user's user_id matches the user_id in the URL
-    const authenticatedUserId = Number(req.user.user_id);
-    const requestedUserId = Number(req.params.user_id);
     console.log('authenticated user id: ' , authenticatedUserId);
     console.log('requested user id: ' , requestedUserId);
 

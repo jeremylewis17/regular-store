@@ -15,6 +15,7 @@ export const fetchCart = async (user_id) => {
 // API interface for adding a product to a user's cart
 export const addToCart = async (user_id, item_id, quantity) => {
   try {
+    console.log(`Adding to cart`);
     const response = await API.put(`carts/${user_id}`, { item_id, quantity });
 
     return response.data;
@@ -37,9 +38,9 @@ export const removeFromCart = async (user_id, item_id) => {
 }
 
 // API interface for checking out a user's cart
-export const checkout = async (user_id) => {
+export const checkout = async (user_id, id) => {
   try {
-    const response = await API.post(`carts/${user_id}/checkout`);
+    const response = await API.post(`carts/checkout/${user_id}`, { id: id });
 
     return response.data;
 

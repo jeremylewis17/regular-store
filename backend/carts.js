@@ -1,8 +1,9 @@
+require('dotenv').config(); 
 const express = require('express');
 const {pool} = require('./database');  // Import the PostgreSQL pool from database.js
 const {passport, ensureAuthenticated, ensureAuthorized} = require('./passport'); // Import the Passport configuration from passport.js
 const bcrypt = require('bcrypt');
-
+const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
 const cartsRouter = express.Router();
 
 
@@ -79,13 +80,14 @@ cartsRouter.delete('/:user_id', ensureAuthenticated, ensureAuthorized, async (re
     }
 });
 
-cartsRouter.post('/:user_id/checkout', ensureAuthenticated, ensureAuthorized, async (req, res) => {
-    try {
+cartsRouter.post('/checkout/:user_id', ensureAuthenticated, ensureAuthorized, async (req, res) => {
+
         const userId = req.params.user_id;
+        const { id } = req.body;
         const client = await pool.connect();
-        await client.query('BEGIN');
 
         try {
+            await client.query('BEGIN');
             // Retrieve the user's cart items and calculate the total price
             const cartItemsQuery = `
                 SELECT items.item_id, items.price, cart.quantity
@@ -108,6 +110,8 @@ cartsRouter.post('/:user_id/checkout', ensureAuthenticated, ensureAuthorized, as
                 totalAmount += price * quantity;
                 orderItems.push({ item_id, quantity });
             });
+
+            totalAmountPennies = totalAmount * 100;
 
             // Check item quantities before reducing
             for (const { item_id, quantity } of orderItems) {
@@ -161,26 +165,37 @@ cartsRouter.post('/:user_id/checkout', ensureAuthenticated, ensureAuthorized, as
                 WHERE user_id = $1
             `;
             await client.query(clearCartQuery, [userId]);
-
-            // Commit the transaction
-            await client.query('COMMIT');
-
+        
             // Perform payment processing logic here later
+            try {
+                const payment = await stripe.paymentIntents.create({
+                amount: totalAmountPennies,
+                currency: "cad",
+                automatic_payment_methods: {
+                    enabled: true,
+                  },
+            });
+            await client.query('COMMIT');
+            res.status(200).send({
+                clientSecret: payment.client_secret,
+              });
+             } catch (err) {
+                // If any error occurs during the transaction, rollback the changes
+            await client.query('ROLLBACK');
+            console.error('Error during cart checkout:', err);
+            res.status(500).send('An error occurred during cart checkout: ' + err.message);
+             }
 
-            res.status(200).send('Cart checkout completed successfully.');
         } catch (err) {
             // If any error occurs during the transaction, rollback the changes
             await client.query('ROLLBACK');
-            throw err;
+            console.error('Error during cart checkout:', err);
+            res.status(500).send('An error occurred during cart checkout: ' + err.message);
         } finally {
             // Release the client back to the pool
             client.release();
-        }
-    } catch (err) {
-        console.error('Error during cart checkout:', err);
-        res.status(500).send('An error occurred during cart checkout: ' + err.message);
-    }
-});
+        } 
+    });
 
 
 module.exports = cartsRouter;

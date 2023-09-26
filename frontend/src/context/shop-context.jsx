@@ -15,6 +15,7 @@ export const ShopContext = createContext(null);
 
 export const ShopContextProvider = (props) => {
   const [cartItems, setCartItems] = useState([]);
+  const [orders, setOrders] = useState();
   const [products, setProducts] = useState([]);
   const { currentUser } = useContext(AuthContext);
   const user_id = currentUser? currentUser.user_id : null;
@@ -32,6 +33,15 @@ export const ShopContextProvider = (props) => {
     }
   }, [user_id]);
 
+  const fetchOrderData = useCallback(async () => {
+    try {
+      const orderData = await fetchOrders(user_id);
+        setOrders(orderData);
+    } catch (error) {
+      console.error("Error fetching orders data: ", error);
+    }
+  }, [user_id]);
+
   async function fetchProductsData() {
     try {
       const productsData = await fetchProducts();
@@ -45,6 +55,7 @@ export const ShopContextProvider = (props) => {
 
     fetchProductsData();
     fetchCartData();
+    fetchOrderData();
 
   }, [fetchCartData]);
 
@@ -108,6 +119,7 @@ export const ShopContextProvider = (props) => {
   const contextValue = {
     user_id,
     cartItems,
+    orders,
     products,
     addToCart,
     removeFromCart,

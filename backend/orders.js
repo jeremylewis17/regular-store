@@ -10,7 +10,7 @@ ordersRouter.get('/', ensureAuthenticated, async (req, res) => {
   try {
     const userId = req.user.user_id;
 
-    const ordersQuery = 'SELECT * FROM orders WHERE user_id = $1';
+    const ordersQuery = 'SELECT * FROM orders WHERE user_id = $1 ORDER BY order_date DESC';
     const ordersResult = await pool.query(ordersQuery, [userId]);
 
     res.status(200).json(ordersResult.rows);
