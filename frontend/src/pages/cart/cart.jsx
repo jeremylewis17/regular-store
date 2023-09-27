@@ -1,14 +1,12 @@
 import React, { useContext } from "react";
 import { ShopContext } from "../../context/shop-context";
-import { AuthContext } from "../../context/auth-context";
 
 import { CartItem } from "./cart-item";
 import { useNavigate } from "react-router-dom";
 
 import "./cart.css";
 export const Cart = () => {
-  const { cartItems, getTotalCartAmount, checkout } = useContext(ShopContext);
-  const { currentUser } = useContext(AuthContext);
+  const { cartItems, getTotalCartAmount } = useContext(ShopContext);
 
   const navigate = useNavigate();
 

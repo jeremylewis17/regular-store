@@ -14,27 +14,6 @@ usersRouter.get('/login', (req, res, next) => {
     res.status(200).send('Please log in.');
 });
 
-
-//usersRouter.post('/login', async (req, res, next) => {
-//    
-//    
-//    const username = req.body.username;
-//    try{
-//    const userData = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
-//
-//    const user_id = userData.user_id;
-//    const role = userData.role;
-//
-//    const user = { user_id: user_id, role: role };
-//    const accessToken = jwt.sign(user, jwtSecret);
-//    res.status(200).json({ accessToken });
-//    } catch (err) {
-//        res.status(400).send("error occured while logging in: ", err);
-//    }
-//  
-//});
-
-
 // Handle login form submission
 usersRouter.post('/login', async (req, res, next) => {
     const { username, password } = req.body;
@@ -173,6 +152,15 @@ usersRouter.delete('/:user_id', ensureAuthenticated, ensureAuthorized, async (re
         res.status(500).send('An error occurred while deleting the user account.');
     }
 });
+
+usersRouter.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+// Route for handling the Google OAuth callback
+usersRouter.get('/auth/google/callback', passport.authenticate('google'), (req, res) => {
+    // Redirect or respond as needed after successful login
+    res.redirect('/');
+  });
+  
 
 
 module.exports = usersRouter;

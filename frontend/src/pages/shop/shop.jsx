@@ -11,6 +11,7 @@ export const Shop = () => {
     <div className="shop">
       <div className="shopTitle">
         <h1>Regular Store</h1>
+        <p id="store-description">Your store for perfectly mundane items. Nothing special to see here.</p>
       </div>
 
       <div className="products">

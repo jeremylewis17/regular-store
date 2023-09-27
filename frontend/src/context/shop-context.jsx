@@ -4,7 +4,7 @@ import {
   fetchCart, 
   addToCart as apiAddToCart, 
   removeFromCart as apiRemoveFromCart, 
-  checkout as apiCheckout } from "../apis/cart";
+  checkoutDB as apiCheckoutDB } from "../apis/cart";
 import { fetchOrder, fetchOrders } from "../apis/order";
 import { fetchProducts, fetchProduct } from "../apis/product";
 import { fetchUser, updateUser, loginUser, registerUser } from "../apis/user";
@@ -20,7 +20,7 @@ export const ShopContextProvider = (props) => {
   const { currentUser } = useContext(AuthContext);
   const user_id = currentUser? currentUser.user_id : null;
 
-  const fetchCartData = useCallback(async () => {
+  const fetchCartData = async () => {
     try {
       const cartData = await fetchCart(user_id);
       if (cartData.empty === true) {
@@ -31,16 +31,16 @@ export const ShopContextProvider = (props) => {
     } catch (error) {
       console.error("Error fetching cart data: ", error);
     }
-  }, [user_id]);
+  };
 
-  const fetchOrderData = useCallback(async () => {
+  const fetchOrderData = async () => {
     try {
       const orderData = await fetchOrders(user_id);
         setOrders(orderData);
     } catch (error) {
       console.error("Error fetching orders data: ", error);
     }
-  }, [user_id]);
+  };
 
   async function fetchProductsData() {
     try {
@@ -54,10 +54,12 @@ export const ShopContextProvider = (props) => {
   useEffect(() => {
 
     fetchProductsData();
+    console.log('Fetching Products Data');
     fetchCartData();
+    console.log('Fetching Cart Data');
     fetchOrderData();
-
-  }, [fetchCartData]);
+    console.log('Fetching Order Data');
+  }, []);
 
   function getTotalCartAmount() {
     let totalAmount = 0;
@@ -103,14 +105,15 @@ export const ShopContextProvider = (props) => {
       }
   };
 
-  async function checkout() {
+  async function checkoutDB() {
     try {
       // Call the API to perform checkout
-      await apiCheckout(user_id);
+      const res = await apiCheckoutDB(user_id);
 
       // Clear the cart items in the state
       setCartItems([]);
       fetchProductsData();
+      return res;
     } catch (error) {
       console.error("Error during checkout:", error);
     }
@@ -124,7 +127,7 @@ export const ShopContextProvider = (props) => {
     addToCart,
     removeFromCart,
     getTotalCartAmount,
-    checkout,
+    checkoutDB,
   };
 
   return (

@@ -26,6 +26,7 @@ body {
   .content {
     flex-grow: 1; /* Allows content to grow and push the footer down */
     padding: 20px; /* Add spacing around content */
+    height: 100vh;
   }
   
   .footer {

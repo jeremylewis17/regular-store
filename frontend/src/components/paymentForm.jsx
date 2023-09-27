@@ -1,14 +1,16 @@
 import React, { useState, useContext, useEffect } from "react";
 import { CardElement, useElements, useStripe, PaymentElement, LinkAuthenticationElement } from '@stripe/react-stripe-js';
-import { checkout } from "../apis/cart";
+import { ShopContext } from "../context/shop-context";
 
-export const PaymentForm = () => {
+export const PaymentForm = (props) => {
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const stripe = useStripe();
   const elements = useElements();
+  const { checkoutDB } = useContext(ShopContext);
+  const {user_id} = props;
 
   useEffect(() => {
     if (!stripe) {
@@ -50,6 +52,7 @@ export const PaymentForm = () => {
       // Make sure to disable form submission until Stripe.js has loaded.
       return;
     }
+    checkoutDB(user_id);
 
     setIsLoading(true);
 

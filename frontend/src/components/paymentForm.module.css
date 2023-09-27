@@ -1,8 +1,13 @@
+.stripe-wrapper {
+  width: 70%;
+}
+
 .stripe-container {
   display: flex;
   justify-content: center; /* Horizontally center */
   align-items: center; /* Vertically center */
   height: 100vh;
+  width: 60%;
 }
   .stripe-container body {
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
 import { 
     fetchUser as apiFetchUser,
     updateUser as apiUpdateUser,
@@ -15,14 +15,6 @@ export const AuthContextProvider = (props) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [loginRegistrationError, setLoginRegistrationError] = useState('');
     const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const storedToken = localStorage.getItem('jwtToken');
-        if (storedToken) {
-            // Token exists, set currentUser or perform token validation here
-        }
-        setLoading(false);
-    }, [currentUser]);
 
     async function getUser(user_id) {
         try {
@@ -47,6 +39,7 @@ export const AuthContextProvider = (props) => {
             if (response.status === 200) {
                 const jwtToken = response.data.accessToken;
                 localStorage.setItem('jwtToken', jwtToken);
+                localStorage.setItem('currentUser', {user_id: response.data.user_id, username: response.data.username});
                 setCurrentUser({user_id: response.data.user_id, username: response.data.username});
             } else {
                 setLoginRegistrationError('Unsuccessful Login');
@@ -59,8 +52,9 @@ export const AuthContextProvider = (props) => {
     async function logoutUser() {
         try {
             await apiLogoutUser();
-            localStorage.removeItem('jwtToken'); // Remove the JWT token
-            setCurrentUser(null); // Clear the user state
+            localStorage.removeItem('jwtToken');
+            localStorage.removeItem('currentUser');
+            setCurrentUser(null);
         } catch (error) {
             console.error("Error logging out: ", error);
         }
@@ -68,6 +62,7 @@ export const AuthContextProvider = (props) => {
 
     const contextValue = {
         currentUser,
+        setCurrentUser,
         registerUser,
         loginUser,
         logoutUser

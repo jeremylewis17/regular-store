@@ -29,7 +29,7 @@ function App() {
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/checkout" element={<StripeContainer />} />
-                <Route path="/checkout/confirm/:query" element={<CheckoutConfirm />} />
+                <Route path="/checkout/confirm" element={<CheckoutConfirm />} />
               </Routes>
             </Layout>
           </Router>

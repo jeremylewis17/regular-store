@@ -1,17 +1,27 @@
-import React, { useContext } from "react";
+import React, { useContext,useEffect } from "react";
 import { StripeContainer } from "../../components/stripeContainer";
 import { ShopContext } from "../../context/shop-context";
 import { AuthContext } from "../../context/auth-context";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, useLocation } from "react-router-dom";
 
 export const CheckoutConfirm = () => {
-  const { cartItems, getTotalCartAmount, checkout } = useContext(ShopContext);
-  const { currentUser } = useContext(AuthContext);
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const paymentStatus = queryParams.get("redirect_status");
+  const { setCurrentUser } = useContext(AuthContext);
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    const user = localStorage.getItem('currentUser');
+    setCurrentUser(user);
+  }, []);
 
   return (
-    <h2>Payment Successful. Your order has been placed.</h2>
+    <div>
+      {paymentStatus === "succeeded" ? (
+        <p>Payment succeeded!</p>
+      ) : (
+        <p>Payment failed or unexpected status.</p>
+      )}
+    </div>
   );
 };

@@ -3,7 +3,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const jwt = require('jsonwebtoken');
-const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const bcrypt = require('bcrypt');
 const { pool } = require('./database');
 
@@ -45,39 +45,56 @@ passport.use(
     })
   );
 
-//passport.use(new LocalStrategy(async (username, password, done) => {
-//    console.log(username);
-//    try {
-//        const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
-//        const user = result.rows[0];
-//
-//        if (!user) {
-//            return done(null, false, { message: 'Incorrect username or password.' });
-//        }
-//
-//        const passwordMatch = await bcrypt.compare(password, user.hashed_password);
-//        if (!passwordMatch) {
-//            return done(null, false, { message: 'Incorrect username or password.' });
-//        }
-//
-//        return done(null, user);
-//    } catch (err) {
-//        return done(err);
-//    }
-//}));
-
-// Passport.js middleware for ensuring authentication
-//function ensureAuthenticated(req, res, next) {
-//    const authHeader = req.headers['authorization'];
-//    const token = authHeader && authHeader.split(' ')[1];
-//    if (token == null) return res.sendStatus(401);
-//
-//    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-//        if (err) return res.sendStatus(403);
-//        req.user = user;
-//        next();
-//    })
-//}
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: 'http://localhost:3001/auth/google/callback', // Update the callback URL
+      },
+      async (accessToken, refreshToken, profile, done) => {
+        try {
+          // Check if the Google user is already linked to a local user account
+          const query = 'SELECT * FROM federated_credentials WHERE provider = ? AND subject = ?';
+          const [existingCredential] = await pool.query(query, ['google', profile.id]);
+  
+          if (existingCredential) {
+            // Google account is linked to a local user, fetch the user record
+            const userQuery = 'SELECT * FROM users WHERE user_id = ?';
+            const [user] = await pool.query(userQuery, [existingCredential.user_id]);
+  
+            if (user) {
+              return done(null, user);
+            }
+          } else {
+            // Google account is not linked to a local user, create a new user record
+            const insertUserQuery = 'INSERT INTO users (name) VALUES (?) RETURNING user_id';
+            const [newUser] = await pool.query(insertUserQuery, [profile.displayName]);
+  
+            if (newUser && newUser.user_id) {
+              // Link the Google account to the new user
+              const insertCredentialQuery =
+                'INSERT INTO federated_credentials (user_id, provider, subject) VALUES (?, ?, ?)';
+              await pool.query(insertCredentialQuery, [newUser.user_id, 'google', profile.id]);
+  
+              const payload = {
+                sub: newUser.user_id,
+                role: newUser.role,
+              };
+  
+              const accessToken = jwt.sign(payload, 'YOUR_JWT_SECRET'); // Replace with your JWT secret
+  
+              return done(null, { ...newUser, accessToken });
+            }
+          }
+  
+          return done(null, false);
+        } catch (error) {
+          return done(error);
+        }
+      }
+    )
+  );
 
 function ensureAuthenticated(req, res, next) {
     passport.authenticate('jwt', { session: false }, (err, user) => {
@@ -89,18 +106,6 @@ function ensureAuthenticated(req, res, next) {
       return next();
     })(req, res, next);
   }
-  
-
-//function ensureAuthenticated(req, res, next) {
-//    console.log('is user authenticated: ' , req.isAuthenticated());
-//    if (req.isAuthenticated()) {
-//        // User is authenticated; proceed to the next middleware
-//        return next();
-//    }
-//
-//    // User is not authenticated; redirect to login
-//    res.status(401).send('You must log in to view this page');
-//}
 
 //authorization middleware
 function ensureAuthorized(req, res, next) {

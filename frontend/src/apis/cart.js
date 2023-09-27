@@ -38,9 +38,20 @@ export const removeFromCart = async (user_id, item_id) => {
 }
 
 // API interface for checking out a user's cart
-export const checkout = async (user_id, id) => {
+export const checkoutDB = async (user_id) => {
   try {
-    const response = await API.post(`carts/checkout/${user_id}`, { id: id });
+    const response = await API.post(`carts/checkout/db/${user_id}`);
+
+    return response.data;
+
+  } catch(err) {
+    throw err.response.data;
+  }
+}
+
+export const checkoutStripe = async (user_id) => {
+  try {
+    const response = await API.post(`carts/checkout/stripe/${user_id}`);
 
     return response.data;
 
