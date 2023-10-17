@@ -52,6 +52,12 @@
   cursor: pointer;
 }
 
+.SoldOut {
+  color: rgb(91, 16, 14);
+  background-color: rgba(113, 113, 113, 0.394);
+  padding: 10px;
+}
+
 .addToCartBttn {
   background-color: transparent;
   border: 2px solid rgb(19, 19, 19);

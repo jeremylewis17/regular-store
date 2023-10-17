@@ -25,7 +25,11 @@ export const Product = (props) => {
     if (!currentUser) {
       navigate("/login");
     } else {
-      addToCart(item_id, oneMoreItemCount);
+      if (quantity > 0) {
+        addToCart(item_id, oneMoreItemCount);
+      } else {
+        alert("Cannot add to cart. Item sold out");
+      }
     }
   }
   
@@ -39,9 +43,10 @@ export const Product = (props) => {
         <p> ${price}. Quantity left: {quantity}</p>
         <p> {description}</p>
       </div>
-      <button className="addToCartBttn" onClick={handleAddToCart}>
+      {quantity > 0? (<button className="addToCartBttn" onClick={handleAddToCart}>
         Add To Cart {currentUser && cartItemCount() > 0 && <> ({cartItemCount()})</>}
-      </button>
+      </button>) : 
+      (<h4 className="SoldOut">Sold Out</h4>) }
     </div>
   );
 };

@@ -26,8 +26,12 @@ export const CartItem = (props) => {
       setInputQuantity(maxQuantity);
       addToCart(item_id, Number(maxQuantity));
       alert(`Quantity cannot exceed the available stock (${maxQuantity})`);
-    } else{
+    } else if (Number.isInteger(inputQuantity)) {
       addToCart(item_id, Number(inputQuantity));
+    } else{
+      addToCart(item_id, Math.floor(Number(inputQuantity)));
+      setInputQuantity(Math.floor(Number(inputQuantity)));
+      alert("Quantity must be a whole number");
     }
   
   };
