@@ -204,7 +204,7 @@ cartsRouter.post('/checkout/db/:user_id', ensureAuthenticated, ensureAuthorized,
             orderItems.push({ item_id, quantity });
         });
 
-        const totalAmountPennies = totalAmount * 100;
+        const totalAmountPennies = Math.round(totalAmount * 100);
 
             const payment = await stripe.paymentIntents.create({
             amount: totalAmountPennies,
