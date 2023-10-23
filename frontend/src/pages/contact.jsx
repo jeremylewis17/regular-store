@@ -6,7 +6,7 @@ export function Contact() {
       <h2>Contact Information</h2>
       <p>Name: Jeremy Lewis</p>
       <p>Email: jeremy.lws@gmail.com</p>
-      <p>Phone: </p>
+      <p>Phone: please see CV</p>
     </div>
   );
 }

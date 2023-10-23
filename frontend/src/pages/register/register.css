@@ -63,7 +63,7 @@
   
   .Login-button a {
     text-decoration: none;
-    background-color: rgb(129, 172, 229);
+    background-color: #618685;
     color: black;
     font-weight: bold;
     font-size: 18px;
@@ -77,6 +77,6 @@
   
   .Login-button a:hover {
     color: rgb(19, 19, 19);
-    background-color: rgb(154, 195, 249);
+    background-color: rgba(97, 134, 133, 0.83);
   }
   

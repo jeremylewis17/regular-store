@@ -1,6 +1,6 @@
 
 .shop {
-  background-color: rgb(30, 30, 30);
+  background-color: #FFFFFF;
   padding-top: 60px;
   padding-bottom: 150px;
 }
@@ -8,7 +8,7 @@
 .shopTitle {
   margin-top: -50px;
   text-align: center;
-  color: white;
+  color: black;
   font-size: 40px;
   font-family: 'Montserrat', sans-serif;
 }
@@ -36,7 +36,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: rgb(129, 172, 229);
+  background-color: #E1E8ED;
 }
 
 .product-name {

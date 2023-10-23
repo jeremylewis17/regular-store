@@ -9,7 +9,7 @@
     width: 400px; /* Adjust the width as needed */
     margin-top: 50px; /* Add some top margin for spacing */
     margin-bottom: 100px;
-    background-color: rgb(129, 172, 229);
+    background-color: #618685;
     border-radius: 10px; /* Add some border-radius for rounded corners */
     box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
   }
@@ -52,7 +52,7 @@
   }
   
   .submit-button:hover {
-    background-color: rgb(81, 81, 81);
+    background-color: rgb(57, 57, 57);
   }
   
   /* Style the "Sign Up Here" link */
@@ -63,7 +63,7 @@
   
   .Register-button a {
     text-decoration: none;
-    background-color: rgb(129, 172, 229);
+    background-color: #618685;
     color: black;
     font-weight: bold;
     font-size: 18px;
@@ -74,6 +74,6 @@
   
   .Register-button a:hover {
     color: rgb(19, 19, 19);
-    background-color: rgb(154, 195, 249);
+    background-color: rgba(97, 134, 133, 0.83);
   }
   
